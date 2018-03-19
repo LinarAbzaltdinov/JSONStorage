@@ -1,0 +1,46 @@
+version: "3"
+
+volumes:
+    app.cache:
+
+services:
+  webserver:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/app
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - db
+
+  php:
+    container_name: phpfpm
+    image: nanoninja/php-fpm
+    volumes:
+      - ./app:/app
+      - app.cache:/app/var
+      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini
+    environment:
+      XDEBUG_CONFIG: "remote_host=192.168.201.27"
+      PHP_IDE_CONFIG: "serverName=docker"
+    links:
+      - db
+
+  composer:
+    image: composer/composer
+    volumes:
+      - ./app:/app
+    command: install
+
+  db:
+    container_name: mongodb
+    image: mongo:latest
+    environment:
+      MONGODB_USER: "scott"
+      MONGODB_PASS: "tiger"
+    ports:
+      - "27017:27017"
+
