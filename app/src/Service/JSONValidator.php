@@ -21,7 +21,7 @@ class JSONValidator
     public function tryParse( $string )
     {
         if ($this->validate( $string )) {
-            return str_replace( "\r\n", "", $string );
+            return preg_replace( "/[\r\n\s]/", "", $string );
         }
         return null;
     }

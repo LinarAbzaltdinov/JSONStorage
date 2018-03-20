@@ -64,9 +64,6 @@ class DataController extends AbstractController
     {
         $result = $this->getDoctrine()->getRepository( AbstractData::class )
             ->findOneBy( [ 'url' => $url ] );
-
-        // !!!! NOT WORKIN, CANT RECIEVE POST
-        
         $newData = $request->get('data');
         $json = $jsonValidator->tryParse($newData);
         if (!$json) {
