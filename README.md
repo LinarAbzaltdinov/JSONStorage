@@ -1,6 +1,8 @@
 # JSONStorage
 Examination task in eLama Juniorlab. Storage of JSON data.
 
+Отсутствует статика (папка assets).
+
 TODO:
 1. ~~Загрузка текста на сервер~~
 2. ~~Сохранение в БД~~
