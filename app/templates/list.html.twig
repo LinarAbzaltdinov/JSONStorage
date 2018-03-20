@@ -1,0 +1,20 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <table style="align-items:center;align-content:center">
+        <tr>
+            <th>Ссылка</th>
+            <th>Создан</th>
+            <th>Просмотров</th>
+            <th>Тип данных</th>
+        </tr>
+    {% for elem in data %}
+        <tr>
+            <td><a href="files/{{ elem.url }}" >{{ elem.id }}.json</a></td>
+            <td>{{ elem.createdDate|localizeddate('medium', 'short') }}"</td>
+            <td>{{ elem.downloadAmount }}</td>
+            <td>{{ elem.dataType }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

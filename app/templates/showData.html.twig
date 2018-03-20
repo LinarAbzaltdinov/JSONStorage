@@ -1,0 +1,43 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <textarea id="text" cols="30" rows="20">{{ json }}</textarea><br>
+    <button id="update">Save changes</button>
+    <button id="download">Download as .json</button>
+    <br><label id="error" hidden="true">Not valid JSON!</label>
+    <script>
+        $('#update').click(function () {
+            var inputText = $('#text').val();
+            var res = isValidJSON(inputText);
+            $('#error').attr("hidden", res);
+            if (res) {
+                $.ajax({
+                    type: "PUT",
+                    url: "/files/{{ url }}",
+                    data: {data: inputText},
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data);
+                        //TODO: Show Messages depends on status
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            }
+        });
+
+        $('#download').click(function () {
+            var inputText = $('#text').val();
+            var res = isValidJSON(inputText);
+            $('#error').attr("hidden", res);
+            if (res) {
+                var a = document.createElement("a");
+                a.download = "{{ filename }}";
+                a.href = "data:text/json;charset=utf-8," + inputText;
+                a.click();
+            }
+        });
+    </script>
+{% endblock %}

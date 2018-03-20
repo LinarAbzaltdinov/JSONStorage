@@ -1,0 +1,17 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <form method="post" action="/upload" id="upload_form">
+        <textarea name="text" id="text" rows="10" cols="30" placeholder="Введите текст в формате JSON"></textarea><br>
+        <input id="submit_btn" type="submit" value="Отправить"><br>
+        <label id="error" hidden="true">Not valid JSON!</label>
+    </form>
+    <script>
+        $('#upload_form').submit(function () {
+            var inputText = $('#text').val();
+            var res = isValidJSON(inputText);
+            $('#error').attr("hidden", res);
+            return res;
+        });
+    </script>
+{% endblock %}
