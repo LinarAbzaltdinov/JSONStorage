@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\JSONData;
-use App\Service\JSONValidator;
+use App\Service\StatisticsService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,20 +21,20 @@ class MainController extends AbstractController
     }
 
     /**
-     * @Route(methods={"POST"}, path="/upload")
+     * @Route(methods={"GET"}, path="/files")
      */
-    public function upload(Request $request, JSONValidator $jsonValidator)
+    public function showAllData()
     {
-        $inputText = $request->request->get("text");
-        $json = $jsonValidator->tryParse($inputText);
-        if ($json) {
-            $jsonData = new JSONData($inputText);
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($jsonData);
-            $em->flush();
-            return new Response($jsonData->getData());
-        }
-        return new Response("FAIL");
+        $allData = $this->getDoctrine()->getRepository( JSONData::class )->findAllNotDeleted();
+        return $this->render( "list.html.twig", [ 'data' => $allData ] );
     }
 
+    /**
+     * @Route(methods={"GET"}, path="/stats")
+     */
+    public function showStats( StatisticsService $statService )
+    {
+        $stats = $statService->getAllStats();
+        return $this->render( "stats.html.twig", $stats );
+    }
 }

@@ -5,3 +5,29 @@
 #error {
     color: red;
 }
+
+body {
+    text-align: center;
+}
+
+nav {
+    margin: 0 auto;
+    border-top:1px solid;
+    border-bottom:1px solid;
+}
+
+nav ul {
+    display: inline-block;
+    list-style-type: none;
+}
+
+nav ul a {
+    display:block;
+    text-decoration:none;
+}
+
+table {
+    width:50%;
+    margin-left:25%;
+    margin-right:25%;
+}

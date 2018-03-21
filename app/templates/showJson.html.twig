@@ -1,29 +1,25 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    <textarea id="text" cols="30" rows="20">{{ json }}</textarea><br>
-    <button id="update">Save changes</button>
-    <button id="download">Download as .json</button>
+    Ссылка на файл: <input readonly value="{{ app.request.uri }}" size="70"/><br>
+    <a href="/files/{{ url }}/xml" >XML</a><br>
+    Текущий размер файла: <label id="count">{{ data|length }}</label> bytes<br>
+    <textarea id="text" oninput="updateSize()" cols="30" rows="20">{{ data }}</textarea><br>
+    <button id="update">Сохранить изменения</button>
+    <button id="download">Скачать как .json</button>
     <br><label id="error" hidden="true">Not valid JSON!</label>
+
     <script>
+        function updateSize() {
+            $("#count").html($("#text").val().length);
+        }
+
         $('#update').click(function () {
             var inputText = $('#text').val();
             var res = isValidJSON(inputText);
             $('#error').attr("hidden", res);
             if (res) {
-                $.ajax({
-                    type: "PUT",
-                    url: "/files/{{ url }}",
-                    data: {data: inputText},
-                    dataType: "json",
-                    success: function (data) {
-                        alert(data);
-                        //TODO: Show Messages depends on status
-                    },
-                    failure: function (errMsg) {
-                        alert(errMsg);
-                    }
-                });
+                updateJSON("/files/{{ url }}", inputText);
             }
         });
 

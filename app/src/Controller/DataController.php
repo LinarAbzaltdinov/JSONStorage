@@ -2,79 +2,103 @@
 
 namespace App\Controller;
 
-use App\Entity\AbstractData;
-use App\Service\JSONValidator;
+use App\Service\JSONDataService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class DataController extends AbstractController
 {
+    const SERVICE_ERROR = "Неизвестная ошибка";
+    const CLIENT_ERROR  = "Данные от клиента не получены";
+    const NODATA_ERROR  = "Данные не найдены";
+
     /**
-     * @Route(methods={"GET"}, path="/files")
+     * @Route(methods={"POST"}, path="/upload")
      */
-    public function getAllData()
+    public function createData( Request $request, JSONDataService $JSONDataService )
     {
-        $allData = $this->getDoctrine()->getRepository( AbstractData::class )->findAll();
-        return $this->render("list.html.twig", ['data' => $allData]);
+        $inputText         = $request->request->get( "text" );
+        $deleteAfterAccess = $request->request->get( "deleteAfterAccess" );
+        if ( ! $inputText) {
+            return $this->render( "error.html.twig", [ "errorMessage" => self::CLIENT_ERROR ] );
+        }
+        $result = $JSONDataService->create( $inputText, $deleteAfterAccess );
+        if ($result) {
+            return $this->render( 'showLink.html.twig', [ 'url' => $result->getUrl() ] );
+        }
+        return $this->render( "error.html.twig", [ "errorMessage" => self::SERVICE_ERROR ] );
     }
 
     /**
      * @Route(methods={"GET"}, path="/files/{url}")
      */
-    public function getData( $url )
+    public function getData( $url, JSONDataService $JSONDataService )
     {
-        $result = $this->getDoctrine()->getRepository( AbstractData::class )
-            ->findOneBy( [ 'url' => $url ] );
+        $result = $JSONDataService->get( $url );
 
-        if ($result && !$result->isDeleted()) {
-            $result->incrementDownloadAmount();
-            $this->getDoctrine()->getManager()->flush();
-            return $this->render("showData.html.twig",
-                ["json" => json_encode(json_decode($result->getData()), JSON_PRETTY_PRINT),
-                 "filename" => $result->getId() . '.json',
-                 "url" => $result->getUrl()]);
-        } else {
-            throw $this->createNotFoundException('Data does not exist');
+        if ($result) {
+            return $this->render( "showJson.html.twig",
+                [ "json"     => json_encode( json_decode( $result->getData() ), JSON_PRETTY_PRINT ),
+                  "filename" => $result->getId() . '.json',
+                  "url"      => $result->getUrl() ] );
         }
+        return $this->render( "error.html.twig", [ "errorMessage" => self::NODATA_ERROR ] );
     }
 
     /**
      * @Route(methods={"DELETE"}, path="/files/{url}")
      */
-    public function deleteData( $url )
+    public function deleteData( $url, JSONDataService $JSONDataService )
     {
-        $result = $this->getDoctrine()->getRepository( AbstractData::class )
-            ->findOneBy( [ 'url' => $url ] );
+        $result = $JSONDataService->delete( $url );
 
-        if ($result && !$result->isDeleted()) {
-            $result->delete();
-            $this->getDoctrine()->getManager()->flush();
-            return new Response('{"status":true}');
-        } else {
-            throw $this->createNotFoundException('Data does not exist');
+        if ($result) {
+            return new JsonResponse( [ "status" => true ] );
         }
+        return new JsonResponse( [
+            "status"       => false,
+            "errorMessage" => self::SERVICE_ERROR,
+        ] );
     }
 
     /**
      * @Route(methods={"PUT"}, path="/files/{url}")
      */
-    public function updateData( $url, Request $request, JSONValidator $jsonValidator)
+    public function updateData( $url, Request $request, JSONDataService $JSONDataService )
     {
-        $result = $this->getDoctrine()->getRepository( AbstractData::class )
-            ->findOneBy( [ 'url' => $url ] );
-        $newData = $request->get('data');
-        $json = $jsonValidator->tryParse($newData);
-        if (!$json) {
-            throw $this->createNotFoundException('Not valid data!');
+        $newData = $request->get( 'text' );
+        if ( ! $newData) {
+            return new JsonResponse( [
+                "status"       => false,
+                "errorMessage" => self::CLIENT_ERROR,
+            ] );
         }
-        if ($result && !$result->isDeleted()) {
-            $result->setData($json);
-            $this->getDoctrine()->getManager()->flush();
-            return new Response('{"status":true}');
-        } else {
-            throw $this->createNotFoundException('Data does not exist');
+        $result = $JSONDataService->update( $url, $newData );
+        if ($result) {
+            return new JsonResponse( [ "status" => true ] );
         }
+        return new JsonResponse( [
+            "status"       => false,
+            "errorMessage" => self::SERVICE_ERROR,
+        ] );
+    }
+
+    /**
+     * @Route(methods={"POST"}, path="/files/{url}/xml")
+     */
+    public function convertToXML( Request $request, JSONDataService $JSONDataService )
+    {
+        $inputText = $request->request->get( 'text' );
+        $xmlData   = $JSONDataService->convertToXML( $inputText );
+        if ($xmlData) {
+            return $this->render( "showXml.html.twig",
+                [
+                    "data"     => $xmlData,
+                    "filename" => 'temp.xml',
+                ] );
+        }
+        return $this->render( "error.html.twig", [ "errorMessage" => self::NODATA_ERROR ] );
     }
 }

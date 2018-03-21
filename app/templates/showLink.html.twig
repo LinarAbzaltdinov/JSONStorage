@@ -1,0 +1,5 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    Ссылка на файл: <input readonly value="{{ app.request.host }}/files/{{ url }}" size="70"/><br>
+{% endblock %}

@@ -1,20 +1,21 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    <table style="align-items:center;align-content:center">
+    <table>
         <tr>
             <th>Ссылка</th>
             <th>Создан</th>
             <th>Просмотров</th>
-            <th>Тип данных</th>
+            <th>Удалить</th>
         </tr>
-    {% for elem in data %}
-        <tr>
-            <td><a href="files/{{ elem.url }}" >{{ elem.id }}.json</a></td>
-            <td>{{ elem.createdDate|localizeddate('medium', 'short') }}"</td>
-            <td>{{ elem.downloadAmount }}</td>
-            <td>{{ elem.dataType }}</td>
-        </tr>
-    {% endfor %}
+        {% for elem in data %}
+            <tr id="{{ elem.url }}">
+                <td><a href="files/{{ elem.url }}">{{ elem.id }}.json</a></td>
+                <td>{{ elem.createdDate|localizeddate('medium', 'short') }}"</td>
+                <td>{{ elem.downloadAmount }}</td>
+                <td><a href="" onclick="deleteJSON('/files/{{ elem.url }}','{{ app.request.uri }}'); return false;" style="color:
+                red">Удалить</a></td>
+            </tr>
+        {% endfor %}
     </table>
 {% endblock %}

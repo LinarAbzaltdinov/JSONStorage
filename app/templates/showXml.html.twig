@@ -1,0 +1,19 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    Текущий размер файла: <label id="count">{{ data|length }}</label> bytes<br>
+    <textarea id="text" cols="30" rows="20" readonly>{{ data }}</textarea><br>
+    <button id="download">Скачать как .xml</button>
+
+    <script>
+        $('#download').click(function () {
+            var inputText = $('#text').val();
+            if (inputText) {
+                var a = document.createElement("a");
+                a.download = "{{ filename }}";
+                a.href = "data:text/xml;charset=utf-8," + inputText;
+                a.click();
+            }
+        });
+    </script>
+{% endblock %}

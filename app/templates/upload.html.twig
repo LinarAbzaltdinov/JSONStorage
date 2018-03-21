@@ -2,7 +2,8 @@
 
 {% block body %}
     <form method="post" action="/upload" id="upload_form">
-        <textarea name="text" id="text" rows="10" cols="30" placeholder="Введите текст в формате JSON"></textarea><br>
+        <textarea name="text" id="text" rows="10" cols="50" placeholder="Введите текст в формате JSON"></textarea><br>
+        <input type="checkbox" name="deleteAfterAccess"/> Удалить после первого доступа к файлу<br>
         <input id="submit_btn" type="submit" value="Отправить"><br>
         <label id="error" hidden="true">Not valid JSON!</label>
     </form>
