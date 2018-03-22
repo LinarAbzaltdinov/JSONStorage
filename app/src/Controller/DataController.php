@@ -10,95 +10,92 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DataController extends AbstractController
 {
-    const SERVICE_ERROR = "Неизвестная ошибка";
-    const CLIENT_ERROR  = "Данные от клиента не получены";
-    const NODATA_ERROR  = "Данные не найдены";
+    const SERVICE_ERROR = "Ошибка";
+    const CLIENT_ERROR = "Данные от клиента не получены";
+    const NODATA_ERROR = "Данные не найдены";
 
     /**
      * @Route(methods={"POST"}, path="/upload")
      */
-    public function createData( Request $request, JSONDataService $JSONDataService )
+    public function createData(Request $request, JSONDataService $JSONDataService)
     {
-        $inputText         = $request->request->get( "text" );
-        $deleteAfterAccess = $request->request->get( "deleteAfterAccess" );
-        if ( ! $inputText) {
-            return $this->render( "error.html.twig", [ "errorMessage" => self::CLIENT_ERROR ] );
+        $inputText = $request->request->get("text");
+        $deleteAfterFirstAccess = $request->request->get("deleteAfterAccess");
+        if ($deleteAfterFirstAccess === null) {
+            $deleteAfterFirstAccess = false;
         }
-        $result = $JSONDataService->create( $inputText, $deleteAfterAccess );
-        if ($result) {
-            return $this->render( 'showLink.html.twig', [ 'url' => $result->getUrl() ] );
+        if (!$inputText) {
+            return $this->errorResponse(self::CLIENT_ERROR);
         }
-        return $this->render( "error.html.twig", [ "errorMessage" => self::SERVICE_ERROR ] );
+        $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess);
+        if (!$jsonDataObject) {
+            return $this->errorResponse(self::SERVICE_ERROR);
+        }
+        return $this->render('showLink.html.twig',
+            [
+                'url' => $jsonDataObject->getUrl()
+            ]);
+
     }
 
     /**
      * @Route(methods={"GET"}, path="/files/{url}")
      */
-    public function getData( $url, JSONDataService $JSONDataService )
+    public function getData($url, JSONDataService $JSONDataService)
     {
-        $result = $JSONDataService->get( $url );
-
-        if ($result) {
-            return $this->render( "showJson.html.twig",
-                [ "json"     => json_encode( json_decode( $result->getData() ), JSON_PRETTY_PRINT ),
-                  "filename" => $result->getId() . '.json',
-                  "url"      => $result->getUrl() ] );
+        $jsonDataObject = $JSONDataService->get($url);
+        if (!$jsonDataObject) {
+            return $this->errorResponse(self::NODATA_ERROR);
         }
-        return $this->render( "error.html.twig", [ "errorMessage" => self::NODATA_ERROR ] );
+        return $this->render("showJson.html.twig",
+            [
+                "data" => $jsonDataObject->getPrettyPrintData(),
+                "filename" => $jsonDataObject->getId() . '.json',
+                "url" => $jsonDataObject->getUrl()
+            ]);
     }
 
     /**
      * @Route(methods={"DELETE"}, path="/files/{url}")
      */
-    public function deleteData( $url, JSONDataService $JSONDataService )
+    public function deleteData($url, JSONDataService $JSONDataService)
     {
-        $result = $JSONDataService->delete( $url );
-
-        if ($result) {
-            return new JsonResponse( [ "status" => true ] );
+        $jsonDataObject = $JSONDataService->delete($url);
+        if (!$jsonDataObject) {
+            return $this->createJsonResponse(false, self::SERVICE_ERROR);
         }
-        return new JsonResponse( [
-            "status"       => false,
-            "errorMessage" => self::SERVICE_ERROR,
-        ] );
+        return $this->createJsonResponse(true);
     }
 
     /**
      * @Route(methods={"PUT"}, path="/files/{url}")
      */
-    public function updateData( $url, Request $request, JSONDataService $JSONDataService )
+    public function updateData($url, Request $request, JSONDataService $JSONDataService)
     {
-        $newData = $request->get( 'text' );
-        if ( ! $newData) {
-            return new JsonResponse( [
-                "status"       => false,
-                "errorMessage" => self::CLIENT_ERROR,
-            ] );
+        $newData = $request->get('text');
+        if (!$newData) {
+            return $this->createJsonResponse(false, self::CLIENT_ERROR);
         }
-        $result = $JSONDataService->update( $url, $newData );
-        if ($result) {
-            return new JsonResponse( [ "status" => true ] );
+        $jsonDataObject = $JSONDataService->update($url, $newData);
+        if (!$jsonDataObject) {
+            return $this->createJsonResponse(false, self::SERVICE_ERROR);
         }
-        return new JsonResponse( [
-            "status"       => false,
-            "errorMessage" => self::SERVICE_ERROR,
-        ] );
+        return $this->createJsonResponse(true);
     }
 
-    /**
-     * @Route(methods={"POST"}, path="/files/{url}/xml")
-     */
-    public function convertToXML( Request $request, JSONDataService $JSONDataService )
+    private function createJsonResponse($status, $errorMessage = null)
     {
-        $inputText = $request->request->get( 'text' );
-        $xmlData   = $JSONDataService->convertToXML( $inputText );
-        if ($xmlData) {
-            return $this->render( "showXml.html.twig",
-                [
-                    "data"     => $xmlData,
-                    "filename" => 'temp.xml',
-                ] );
-        }
-        return $this->render( "error.html.twig", [ "errorMessage" => self::NODATA_ERROR ] );
+        return new JsonResponse([
+            "status" => $status,
+            "errorMessage" => $errorMessage
+        ]);
+    }
+
+    private function errorResponse($errorMessage)
+    {
+        return $this->render("error.html.twig",
+            [
+                "errorMessage" => $errorMessage
+            ]);
     }
 }

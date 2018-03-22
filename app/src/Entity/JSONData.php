@@ -180,4 +180,8 @@ class JSONData
     {
         $this->downloadAmount++;
     }
+
+    public function getPrettyPrintData() {
+        return json_encode(json_decode($this->data), JSON_PRETTY_PRINT);
+    }
 }
