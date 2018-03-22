@@ -24,23 +24,23 @@ services:
       - app.cache:/app/var
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.201.27"
+      XDEBUG_CONFIG: "remote_host=192.168.1.136"  #your host ip
       PHP_IDE_CONFIG: "serverName=docker"
+      DB_NAME: postgres
+      DB_HOST: db
+      DB_USER: scott
+      DB_PASSWORD: tiger
+      DB_DRIVER: pgsql
+      DATABASE_URL: pgsql://scott:tiger@db:5432/postgres
     links:
       - db
 
-  composer:
-    image: composer/composer
-    volumes:
-      - ./app:/app
-    command: install
-
   db:
-    container_name: mongodb
-    image: mongo:latest
+    container_name: postgres
+    image: postgres
     environment:
-      MONGODB_USER: "scott"
-      MONGODB_PASS: "tiger"
+      POSTGRES_USER: "scott"
+      POSTGRES_PASS: "tiger"
     ports:
-      - "27017:27017"
+      - "5432:5432"
 
