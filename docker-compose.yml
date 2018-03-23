@@ -41,4 +41,4 @@ services:
     volumes:
       - ./db_dump/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./config/postgresql/setconfig.sh:/docker-entrypoint-initdb.d/setconfig.sh
-      #- ./config/postgresql/cron.sql:/docker-entrypoint-initdb.d/cron.sql
+      - ./config/postgresql/cron.sql:/docker-entrypoint-initdb.d/cron.sql

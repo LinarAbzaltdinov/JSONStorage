@@ -20,5 +20,10 @@ function isValidDateTime(minutes, hours, day, month, year) {
     if (date < Date.now()) {
         return false;
     }
+    var timeDiff = Math.abs(date.getTime() - Date.now().getTime());
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    if (diffDays > 365) {
+        return false;
+    }
     return true;
 }

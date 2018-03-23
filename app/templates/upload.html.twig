@@ -16,8 +16,9 @@
         <input type="number" class="fourdigit" name="year" id="year" min="1970" max="2070" placeholder="yyyy">
         <br>
         <input id="submit_btn" type="submit" value="Загрузить"><br>
-        <label class="error" id="errorJSON" hidden=true>Not valid JSON!</label><br>
-        <label class="error" id="errorDateTime" hidden="true">Not valid Date/Time!</label>
+        <label class="error" id="errorJSON" hidden=true>Не валидный JSON!</label><br>
+        <label class="error" id="errorDateTime" hidden="true">Не валидная дата или время! Удаление можно настроить
+             максимум на ближайшие 365 дней</label>
     </form>
     <script>
         $('#upload_form').submit(function () {
