@@ -3,8 +3,10 @@
 {% block body %}
     <form method="post" action="/upload" id="upload_form">
         <textarea name="text" id="text" rows="10" cols="50" placeholder="Введите текст в формате JSON"></textarea><br>
+        <input id="jsonfile" name="jsonfile" type="file" accept=".json, .txt" onchange="loadFileToTextArea();"/>
+        <label for="jsonfile">(JSON, TXT)</label><br>
         <input type="checkbox" name="deleteAfterAccess"/> Удалить после первого доступа к файлу<br>
-        <input id="submit_btn" type="submit" value="Отправить"><br>
+        <input id="submit_btn" type="submit" value="Загрузить"><br>
         <label id="error" hidden="true">Not valid JSON!</label>
     </form>
     <script>
@@ -14,5 +16,15 @@
             $('#error').attr("hidden", res);
             return res;
         });
+
+        function loadFileToTextArea() {
+            var fileToLoad = document.getElementById("jsonfile").files[0];
+            var fileReader = new FileReader();
+            fileReader.onload = function(fileLoadedEvent){
+                var textFromFileLoaded = fileLoadedEvent.target.result;
+                document.getElementById("text").value = textFromFileLoaded;
+            };
+            fileReader.readAsText(fileToLoad, "UTF-8");
+        }
     </script>
 {% endblock %}

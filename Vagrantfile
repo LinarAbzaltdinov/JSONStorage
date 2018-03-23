@@ -68,7 +68,7 @@ Vagrant.configure("2") do |config|
       curl -sSL https://get.docker.com/ | sh
       sudo usermod -aG docker $USER
       usermod -aG docker vagrant
-      newgrp docker
+      sudo usermod -aG docker vagrant
     fi
 
     if ! which docker-compose; then
@@ -77,8 +77,11 @@ Vagrant.configure("2") do |config|
     fi
 
     cd /vagrant
-    docker-compose up -d
-
+    newgrp docker
     docker exec phpfpm chmod 777 -R /app/var
+    docker run -v $(pwd)/app:/app composer install
+    docker-compose up -d
+    docker exec phpfpm /app/bin/console doctrine:migrations:diff
+    docker exec phpfpm /app/bin/console doctrine:migrations:migrate
   SHELL
 end

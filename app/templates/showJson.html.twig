@@ -2,13 +2,14 @@
 
 {% block body %}
     Ссылка на файл: <input readonly value="{{ app.request.uri }}" size="70"/><br>
-    <a href="/files/{{ url }}/xml" >XML</a><br>
     Текущий размер файла: <label id="count">{{ data|length }}</label> bytes<br>
-    <textarea id="text" oninput="updateSize()" cols="30" rows="20">{{ data }}</textarea><br>
-    <button id="update">Сохранить изменения</button>
+    <form id="convertToXML" method="post" action="/xml">
+        <textarea id="text" name="text" oninput="updateSize()" cols="30" rows="20">{{ data }}</textarea><br>
+        <button type="submit">Конвертировать в XML</button>
+    </form>
     <button id="download">Скачать как .json</button>
+    <button id="update">Сохранить изменения</button>
     <br><label id="error" hidden="true">Not valid JSON!</label>
-
     <script>
         function updateSize() {
             $("#count").html($("#text").val().length);
@@ -27,11 +28,21 @@
             var inputText = $('#text').val();
             var res = isValidJSON(inputText);
             $('#error').attr("hidden", res);
-            if (res) {
-                var a = document.createElement("a");
-                a.download = "{{ filename }}";
-                a.href = "data:text/json;charset=utf-8," + inputText;
-                a.click();
+            if (!res) {
+                return false;
+            }
+            var a = document.createElement("a");
+            a.download = "{{ filename }}";
+            a.href = "data:text/json;charset=utf-8," + inputText;
+            a.click();
+        });
+
+        $('#convertToXML').submit(function () {
+            var inputText = $('#text').val();
+            var res = isValidJSON(inputText);
+            $('#error').attr("hidden", res);
+            if (!res) {
+                return false;
             }
         });
     </script>
