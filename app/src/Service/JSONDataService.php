@@ -10,6 +10,7 @@ namespace App\Service;
 
 
 use App\Entity\JSONData;
+use App\Entity\JSONSecureData;
 use Doctrine\ORM\EntityManager;
 
 class JSONDataService
@@ -23,13 +24,17 @@ class JSONDataService
         $this->jsonValidator = new JSONValidator();
     }
 
-    public function create($data, $deleteAfterAccess)
+    public function create($data, $deleteAfterAccess, $isSecured = false)
     {
         $json = $this->jsonValidator->tryParse($data);
         if (!$json) {
             return false;
         }
-        $jsonData = new JSONData($json, $deleteAfterAccess);
+        if (!$isSecured) {
+            $jsonData = new JSONData($json, $deleteAfterAccess);
+        } else {
+            $jsonData = new JSONSecureData($json, $deleteAfterAccess);
+        }
         try {
             $this->em->persist($jsonData);
             $this->em->flush();

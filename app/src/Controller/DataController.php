@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\JSONDataService;
+use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +14,26 @@ class DataController extends AbstractController
     const SERVICE_ERROR = "Ошибка";
     const CLIENT_ERROR = "Данные от клиента не получены";
     const NODATA_ERROR = "Данные не найдены";
+
+    /**
+     * @Route(methods={"GET"}, path="/files/private/{url}")
+     */
+    public function getSecureData($url, Request $request)
+    {
+        $AUTH_PASS = 'admin';
+        header('Cache-Control: no-cache, must-revalidate, max-age=0');
+        $has_supplied_credentials = !(empty($_SERVER['PHP_AUTH_USER']) && empty($_SERVER['PHP_AUTH_PW']));
+        $is_not_authenticated = (
+            !$has_supplied_credentials ||
+            $_SERVER['PHP_AUTH_PW']   != $AUTH_PASS
+        );
+        if ($is_not_authenticated) {
+            header('HTTP/1.1 401 Authorization Required');
+            header('WWW-Authenticate: Basic realm="Access denied"');
+            exit;
+        }
+    }
+
 
     /**
      * @Route(methods={"POST"}, path="/upload")
@@ -27,7 +48,7 @@ class DataController extends AbstractController
         if (!$inputText) {
             return $this->errorResponse(self::CLIENT_ERROR);
         }
-        $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess);
+        $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess, true);
         if (!$jsonDataObject) {
             return $this->errorResponse(self::SERVICE_ERROR);
         }

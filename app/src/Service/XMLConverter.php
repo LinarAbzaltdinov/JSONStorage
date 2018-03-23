@@ -33,10 +33,7 @@ class XMLConverter
                 }
                 $node = $domDocument->createElement($key);
                 $domNode->appendChild($node);
-
-
                 $this->arrayToXML($value, $node, $domDocument);
-
             }
         } else {
             $domNode->appendChild($domDocument->createTextNode($array));
