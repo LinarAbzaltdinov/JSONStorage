@@ -15,4 +15,3 @@ create table jsondata
   type varchar(255) not null,
   password varchar(100) default NULL::character varying
 );
-

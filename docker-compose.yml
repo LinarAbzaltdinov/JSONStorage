@@ -24,7 +24,7 @@ services:
       - app.cache:/app/var
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.201.27"  #your host ip
+      XDEBUG_CONFIG: "remote_host=192.168.1.136"  #your host ip
       PHP_IDE_CONFIG: "serverName=docker"
       DATABASE_URL: pgsql://postgres:tiger@db:5432/postgres
     links:
@@ -32,12 +32,14 @@ services:
 
   db:
     container_name: postgres
-    image: postgres
+    build:
+        context: config/postgresql
     environment:
       POSTGRES_PASS: "tiger"
     ports:
       - "5432:5432"
     volumes:
       - ./db_dump/init.sql:/docker-entrypoint-initdb.d/init.sql
-      #- ./config/postgresql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      #- ./config/postgresql/cron.sql:/var/lib/postgresql/data/cron.sql
+      - ./config/postgresql/postgresql.conf:/docker-entrypoint-initdb.d/postgresql.conf
+      - ./config/postgresql/setconfig.sh:/docker-entrypoint-initdb.d/setconfig.sh
+      #- ./config/postgresql/cron.sql:/docker-entrypoint-initdb.d/cron.sql

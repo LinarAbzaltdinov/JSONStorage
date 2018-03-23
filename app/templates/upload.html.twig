@@ -5,17 +5,41 @@
         <textarea name="text" id="text" rows="10" cols="50" placeholder="Введите текст в формате JSON"></textarea><br>
         <input id="jsonfile" name="jsonfile" type="file" accept=".json, .txt" onchange="loadFileToTextArea();"/>
         <label for="jsonfile">(JSON, TXT)</label><br>
-        <input type="checkbox" name="deleteAfterAccess"/> Удалить после первого доступа к файлу<br>
         <input type="checkbox" name="isSecure"/>Защитить ссылку паролем<br>
+        <input type="checkbox" name="deleteAfterAccess"/> Удалить после первого доступа к файлу<br>
+        <input type="checkbox" id="deleteByDateTime" name="deleteByDateTime"/> Хранить файл до заданного времени
+        (UTC+3):
+        <input type="number" class="twodigit" name="hour" id="hour" min="0" max="23" placeholder="HH">:
+        <input type="number" class="twodigit" name="minute" id="minute"  min="0" max="59" placeholder="MM">
+        <input type="number" class="twodigit" name="day" id="day" min="1" max="31" placeholder="dd">/
+        <input type="number" class="twodigit" name="month" id="month" min="1" max="12" placeholder="mm">/
+        <input type="number" class="fourdigit" name="year" id="year" min="1970" max="2070" placeholder="yyyy">
+        <br>
         <input id="submit_btn" type="submit" value="Загрузить"><br>
-        <label id="error" hidden="true">Not valid JSON!</label>
+        <label class="error" id="errorJSON" hidden=true>Не валидный JSON!</label><br>
+        <label class="error" id="errorDateTime" hidden="true">Не валидная дата или время! Удаление можно настроить
+             максимум на ближайшие 365 дней</label>
     </form>
     <script>
         $('#upload_form').submit(function () {
             var inputText = $('#text').val();
-            var res = isValidJSON(inputText);
-            $('#error').attr("hidden", res);
-            return res;
+            var isValidJson = isValidJSON(inputText);
+            $('#errorJSON').attr("hidden", isValidJson);
+            if (!isValidJson) {
+                return false;
+            }
+            var isDeleteByDateTime = document.getElementById('deleteByDateTime').checked;
+            if (!isDeleteByDateTime) {
+                return true;
+            }
+            var mm = Number($('#minute').val());
+            var hh = Number($('#hour').val());
+            var day = Number($('#day').val());
+            var month = Number($('#month').val()) - 1;
+            var year = Number($('#year').val());
+            var isValidTime = isValidDateTime(mm, hh, day, month, year);
+            $('#errorDateTime').attr("hidden", isValidTime);
+            return isValidTime;
         });
 
         function loadFileToTextArea() {

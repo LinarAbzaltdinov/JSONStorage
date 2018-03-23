@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\JSONSecureData;
+use App\Service\CronJobExecutor;
 use App\Service\JSONDataService;
 use App\Service\PasswordGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +22,7 @@ abstract class AbstractJSONDataController extends AbstractController
     /**
      * @Route(methods={"POST"}, path="/upload")
      */
-    public function createData(Request $request, JSONDataService $JSONDataService)
+    public function createData(Request $request, JSONDataService $JSONDataService, CronJobExecutor $cronJobExecutor)
     {
         $inputText = $request->request->get("text");
         $deleteAfterFirstAccess =
@@ -35,7 +36,6 @@ abstract class AbstractJSONDataController extends AbstractController
         if (!$inputText) {
             return $this->errorResponse(self::CLIENT_ERROR);
         }
-
         $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess, $isSecure);
         if (!$jsonDataObject) {
             return $this->errorResponse(self::SERVICE_ERROR);
@@ -49,6 +49,24 @@ abstract class AbstractJSONDataController extends AbstractController
             }
             $parameters['password'] = $pass;
         }
+
+        $isDeleteByDateTime =
+            $request->request->get("deleteByDateTime") === null
+                ? false
+                : true;
+        if ($isDeleteByDateTime) {
+            $minute = $request->request->get("minute");
+            $hour = $request->request->get("hour");
+            $day = $request->request->get("day");
+            $month = $request->request->get("month");
+            $year = $request->request->get("year");
+            if ($minute && $hour && $day && $month) {
+                $cronJobExecutor->runJob( $minute, $hour, $day, $month, $year, "UPDATE jsondata SET deleted=TRUE WHERE id="
+                                                                        .$jsonDataObject->getId());
+            }
+        }
+
+
         return $this->render('showLink.html.twig', $parameters);
     }
 

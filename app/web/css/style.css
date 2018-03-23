@@ -2,7 +2,7 @@
     text-align: center;
 }
 
-#error {
+.error {
     color: red;
 }
 
@@ -30,4 +30,14 @@ table {
     width:50%;
     margin-left:25%;
     margin-right:25%;
+}
+
+.twodigit
+{
+    width: 40px;
+}
+
+.fourdigit
+{
+    width: 60px;
 }
