@@ -32,12 +32,13 @@ services:
 
   db:
     container_name: postgres
-    image: postgres
+    build:
+        context: config/postgresql
     environment:
       POSTGRES_PASS: "tiger"
     ports:
       - "5432:5432"
     volumes:
       - ./db_dump/init.sql:/docker-entrypoint-initdb.d/init.sql
-      #- ./config/postgresql/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      #- ./config/postgresql/cron.sql:/var/lib/postgresql/data/cron.sql
+      - ./config/postgresql/setconfig.sh:/docker-entrypoint-initdb.d/setconfig.sh
+      #- ./config/postgresql/cron.sql:/docker-entrypoint-initdb.d/cron.sql
