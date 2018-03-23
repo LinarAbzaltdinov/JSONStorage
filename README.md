@@ -21,7 +21,10 @@
 
 ## Запуск
 ```
+docker run -v $(pwd)/app:/app composer install
 docker-compose up -d
+docker exec phpfpm chmod 777 -R /app/var
+docker exec -it postgres psql -U postgres -c "CREATE EXTENSION pg_cron;"
 ```
 
 ## Особенности реализации
