@@ -172,7 +172,7 @@ class JSONData
         $this->data        = $data;
         $this->url         = preg_replace( '/[^A-Za-z0-9\-]/', '',
             password_hash( $data, PASSWORD_DEFAULT ) ); // generates unique URL
-        $this->createdDate = new \DateTime( "now" );
+        $this->createdDate = new \DateTime( "now" , new \DateTimeZone("Europe/Moscow") );
         $this->deleteAfterFirstAccess = $deleteAfterAccess;
     }
 

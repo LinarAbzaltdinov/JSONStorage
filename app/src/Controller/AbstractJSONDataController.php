@@ -59,8 +59,9 @@ abstract class AbstractJSONDataController extends AbstractController
             $hour = $request->request->get("hour");
             $day = $request->request->get("day");
             $month = $request->request->get("month");
+            $year = $request->request->get("year");
             if ($minute && $hour && $day && $month) {
-                $cronJobExecutor->runJob( $minute, $hour, $day, $month, "UPDATE jsondata SET deleted=TRUE WHERE id="
+                $cronJobExecutor->runJob( $minute, $hour, $day, $month, $year, "UPDATE jsondata SET deleted=TRUE WHERE id="
                                                                         .$jsonDataObject->getId());
             }
         }

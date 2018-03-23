@@ -1,1 +1,1 @@
-CREATE EXTENSION IF NOT EXISTS pg_cron CASCADE;
+create extension pg_cron;
