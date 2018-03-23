@@ -53,16 +53,7 @@ class JSONDataService
         if (!$result || $result->isDeleted()) {
             return false;
         }
-        $result->incrementDownloadAmount();
-        if ($result->getDeleteAfterFirstAccess()) {
-            $result->delete();
-        }
-        try {
-            $this->em->flush();
-            return $result;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $result;
 
     }
 
@@ -108,14 +99,17 @@ class JSONDataService
         }
     }
 
-    public function convertToXML($inputText)
+    public function incrementDownloadAmount(JSONData $jsonDataObject)
     {
-        $jsonText = $this->jsonValidator->tryParse($inputText);
-        if (!$jsonText) {
+        $jsonDataObject->incrementDownloadAmount();
+        if ($jsonDataObject->getDeleteAfterFirstAccess()) {
+            $jsonDataObject->delete();
+        }
+        try {
+            $this->em->flush();
+            return $jsonDataObject;
+        } catch (\Exception $e) {
             return false;
         }
-        $jsonArray = json_decode($jsonText);
-        $xml = XMLConverter::convertToXML($jsonArray);
-        return $xml;
     }
 }

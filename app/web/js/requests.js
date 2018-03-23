@@ -1,12 +1,3 @@
-function isValidJSON(string) {
-    try {
-        JSON.parse(string);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
-
 function updateJSON(url, newData) {
     $.ajax({
         type: "PUT",

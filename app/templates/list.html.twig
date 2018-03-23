@@ -6,6 +6,7 @@
             <th>Ссылка</th>
             <th>Создан</th>
             <th>Просмотров</th>
+            <th>Тип</th>
             <th>Удалить</th>
         </tr>
         {% for elem in data %}
@@ -13,6 +14,7 @@
                 <td><a href="files/{{ elem.url }}">{{ elem.id }}.json</a></td>
                 <td>{{ elem.createdDate|localizeddate('medium', 'short') }}"</td>
                 <td>{{ elem.downloadAmount }}</td>
+                <td>{% if elem.password is defined %} Защищенный {% else %} Открытый {% endif %}</td>
                 <td><a href="" onclick="deleteJSON('/files/{{ elem.url }}','{{ app.request.uri }}'); return false;" style="color:
                 red">Удалить</a></td>
             </tr>

@@ -6,6 +6,7 @@
         <input id="jsonfile" name="jsonfile" type="file" accept=".json, .txt" onchange="loadFileToTextArea();"/>
         <label for="jsonfile">(JSON, TXT)</label><br>
         <input type="checkbox" name="deleteAfterAccess"/> Удалить после первого доступа к файлу<br>
+        <input type="checkbox" name="isSecure"/>Защитить ссылку паролем<br>
         <input id="submit_btn" type="submit" value="Загрузить"><br>
         <label id="error" hidden="true">Not valid JSON!</label>
     </form>

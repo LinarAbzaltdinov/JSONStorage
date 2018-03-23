@@ -78,10 +78,8 @@ Vagrant.configure("2") do |config|
 
     cd /vagrant
     newgrp docker
-    docker exec phpfpm chmod 777 -R /app/var
     docker run -v $(pwd)/app:/app composer install
     docker-compose up -d
-    docker exec phpfpm /app/bin/console doctrine:migrations:diff
-    docker exec phpfpm /app/bin/console doctrine:migrations:migrate
+    docker exec phpfpm chmod 777 -R /app/var
   SHELL
 end

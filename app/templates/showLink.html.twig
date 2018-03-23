@@ -2,4 +2,7 @@
 
 {% block body %}
     Ссылка на файл: <input readonly value="{{ app.request.host }}/files/{{ url }}" size="70"/><br>
+    {% if password is defined%}
+    Пароль: <input readonly value="{{ password }}" size="8"/>, поле для логина оставьте пустым<br>
+    {% endif %}
 {% endblock %}

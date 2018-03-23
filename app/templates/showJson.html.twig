@@ -9,6 +9,7 @@
     </form>
     <button id="download">Скачать как .json</button>
     <button id="update">Сохранить изменения</button>
+    <button id="delete" style="color: red" onclick="deleteJSON('/files/{{ url }}', '/files');">Удалить</button>
     <br><label id="error" hidden="true">Not valid JSON!</label>
     <script>
         function updateSize() {

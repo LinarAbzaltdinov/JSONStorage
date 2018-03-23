@@ -11,7 +11,6 @@ namespace App\Service;
 
 class XMLConverter
 {
-
     public function convertToXML($jsonString)
     {
         $jsonArray = json_decode($jsonString, true);
