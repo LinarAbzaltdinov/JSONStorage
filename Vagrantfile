@@ -64,14 +64,17 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-    echo Docker installation
-    curl -sSL https://get.docker.com/ | sh
-    sudo usermod -aG docker $USER
-    newgrp docker
+    if ! which docker; then
+      curl -sSL https://get.docker.com/ | sh
+      sudo usermod -aG docker $USER
+      usermod -aG docker vagrant
+      newgrp docker
+    fi
 
-    echo Docker-compose installation
-    sudo curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+    if ! which docker-compose; then
+      sudo curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+      sudo chmod +x /usr/local/bin/docker-compose
+    fi
 
     cd /vagrant
     docker-compose up -d

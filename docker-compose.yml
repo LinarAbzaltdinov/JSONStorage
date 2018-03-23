@@ -26,21 +26,28 @@ services:
     environment:
       XDEBUG_CONFIG: "remote_host=192.168.201.27"
       PHP_IDE_CONFIG: "serverName=docker"
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_DATABASE: postgres
+      DB_USERNAME: scott
+      DB_PASSWORD: tiger
+      DATABASE_URL: pgsql://scott:tiger@postgres:5432/postgres
     links:
       - db
 
   composer:
-    image: composer/composer
+    image: composer
     volumes:
       - ./app:/app
-    command: install
+    command: "update"
 
   db:
-    container_name: mongodb
-    image: mongo:latest
+    container_name: postgres
+    image: postgres
+    restart: always
     environment:
-      MONGODB_USER: "scott"
-      MONGODB_PASS: "tiger"
+      POSTGRES_USER: scott
+      POSTGRES_PASSWORD: tiger
     ports:
-      - "27017:27017"
+      - "5432:5432"
 
