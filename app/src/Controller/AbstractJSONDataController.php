@@ -15,7 +15,7 @@ abstract class AbstractJSONDataController extends AbstractController
 {
     const SERVICE_ERROR = "Ошибка";
     const CLIENT_ERROR = "Данные от клиента не получены";
-    const NODATA_ERROR = "Данные не найдены";
+    const NODATA_ERROR = "Данные не найдены или удалены";
     const PASS_LENGTH = 8;
 
     /**

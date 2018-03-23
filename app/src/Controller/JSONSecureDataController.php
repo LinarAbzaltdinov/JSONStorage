@@ -14,8 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class JSONSecureDataController extends AbstractJSONDataController
 {
-    const NOT_SECURE_DATA_ERROR = "Данные не найдены. Ваш URL не должен содержать /private.";
-    const NOT_AVAILIABLE_ERROR = "Доступ зарпещен";
+    const NOT_AVAILIABLE_ERROR = "Доступ зарпещен или данные удалены.";
     /**
      * @Route(methods={"GET"}, path="/files/private/{url}")
      */
@@ -23,7 +22,8 @@ class JSONSecureDataController extends AbstractJSONDataController
     {
         $checkResult = $this->checkCredentials( $url, $request, $JSONDataService );
         if ($checkResult !== true) {
-            return $this->errorResponse(self::NOT_SECURE_DATA_ERROR);;
+            $_SERVER['PHP_AUTH_PW'] = null;
+            return $this->errorResponse(self::NODATA_ERROR);;
         }
         $jsonDataObject = $JSONDataService->get( $url );
         $JSONDataService->incrementDownloadAmount( $jsonDataObject );

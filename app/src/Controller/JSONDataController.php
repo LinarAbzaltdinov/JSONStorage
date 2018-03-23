@@ -13,10 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class JSONDataController extends AbstractJSONDataController
 {
-    const SERVICE_ERROR = "Ошибка";
-    const CLIENT_ERROR = "Данные от клиента не получены";
-    const NODATA_ERROR = "Данные не найдены";
-    const PASS_LENGTH = 8;
 
     /**
      * @Route(methods={"GET"}, path="/files/{url}")
