@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\JSONSecureData;
 use App\Service\JSONDataService;
+use App\Service\PasswordGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,26 +16,7 @@ class DataController extends AbstractController
     const SERVICE_ERROR = "Ошибка";
     const CLIENT_ERROR = "Данные от клиента не получены";
     const NODATA_ERROR = "Данные не найдены";
-
-    /**
-     * @Route(methods={"GET"}, path="/files/private/{url}")
-     */
-    public function getSecureData($url, Request $request)
-    {
-        $AUTH_PASS = 'admin';
-        header('Cache-Control: no-cache, must-revalidate, max-age=0');
-        $has_supplied_credentials = !(empty($_SERVER['PHP_AUTH_USER']) && empty($_SERVER['PHP_AUTH_PW']));
-        $is_not_authenticated = (
-            !$has_supplied_credentials ||
-            $_SERVER['PHP_AUTH_PW']   != $AUTH_PASS
-        );
-        if ($is_not_authenticated) {
-            header('HTTP/1.1 401 Authorization Required');
-            header('WWW-Authenticate: Basic realm="Access denied"');
-            exit;
-        }
-    }
-
+    const PASS_LENGTH = 8;
 
     /**
      * @Route(methods={"POST"}, path="/upload")
@@ -41,22 +24,32 @@ class DataController extends AbstractController
     public function createData(Request $request, JSONDataService $JSONDataService)
     {
         $inputText = $request->request->get("text");
-        $deleteAfterFirstAccess = $request->request->get("deleteAfterAccess");
-        if ($deleteAfterFirstAccess === null) {
-            $deleteAfterFirstAccess = false;
-        }
+        $deleteAfterFirstAccess =
+            $request->request->get("deleteAfterAccess") === null
+                ? false
+                : true;
+        $isSecure =
+            $request->request->get("isSecure") === null
+                ? false
+                : true;
         if (!$inputText) {
             return $this->errorResponse(self::CLIENT_ERROR);
         }
-        $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess, true);
+
+        $jsonDataObject = $JSONDataService->create($inputText, $deleteAfterFirstAccess, $isSecure);
         if (!$jsonDataObject) {
             return $this->errorResponse(self::SERVICE_ERROR);
         }
-        return $this->render('showLink.html.twig',
-            [
-                'url' => $jsonDataObject->getUrl()
-            ]);
-
+        $parameters = ['url' => $jsonDataObject->getUrl()];
+        if ($jsonDataObject instanceof JSONSecureData) {
+            $pass = PasswordGenerator::generate(self::PASS_LENGTH);
+            $isPassSet = $JSONDataService->setPasswordToSecureData($jsonDataObject, $pass);
+            if (!$isPassSet) {
+                return $this->errorResponse(self::SERVICE_ERROR);
+            }
+            $parameters['password'] = $pass;
+        }
+        return $this->render('showLink.html.twig', $parameters);
     }
 
     /**
@@ -67,6 +60,9 @@ class DataController extends AbstractController
         $jsonDataObject = $JSONDataService->get($url);
         if (!$jsonDataObject) {
             return $this->errorResponse(self::NODATA_ERROR);
+        }
+        if ($jsonDataObject instanceof JSONSecureData) {
+            return $this->forward('App\Controller\DataController::getSecureData', ['$url' => $url]);
         }
         return $this->render("showJson.html.twig",
             [
@@ -103,6 +99,37 @@ class DataController extends AbstractController
         }
         return $this->createJsonResponse(true);
     }
+
+
+    /**
+     * @Route(methods={"GET"}, path="/files/private/{url}")
+     */
+    public function getSecureData($url, Request $request, JSONDataService $JSONDataService)
+    {
+        $enteredPassword = $request->server->get('PHP_AUTH_PW');
+        $jsonData = $JSONDataService->get($url);
+        if (!$jsonData instanceof JSONSecureData) {
+            return $this->redirect("/files/$url");
+        }
+        header('Cache-Control: no-cache, must-revalidate, max-age=0');
+        if (!isset($enteredPassword) || !password_verify($enteredPassword, $jsonData->getPassword())) {
+            header('HTTP/1.1 401 Authorization Required');
+            header('WWW-Authenticate: Basic realm="Access denied"');
+            exit;
+        } else {
+            return $this->forward( 'App\Controller\DataController::getData',
+                [
+                    'url'             => $url,
+                    'JSONDataService' => $JSONDataService
+                ] );
+        }
+    }
+
+
+
+
+
+
 
     private function createJsonResponse($status, $errorMessage = null)
     {

@@ -37,7 +37,7 @@ class JSONSecureData extends JSONData
      */
     public function setPassword($password): void
     {
-        $this->password = password_hash($password);
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
     public function getUrl()

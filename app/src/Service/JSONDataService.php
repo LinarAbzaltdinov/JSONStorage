@@ -34,6 +34,8 @@ class JSONDataService
             $jsonData = new JSONData($json, $deleteAfterAccess);
         } else {
             $jsonData = new JSONSecureData($json, $deleteAfterAccess);
+            $password = PasswordGenerator::generate(8);
+            $jsonData->setPassword($password);
         }
         try {
             $this->em->persist($jsonData);
@@ -96,6 +98,16 @@ class JSONDataService
         }
     }
 
+    public function setPasswordToSecureData(JSONSecureData $JSONSecureData, $password) {
+        $JSONSecureData->setPassword($password);
+        try {
+            $this->em->flush();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
     public function convertToXML($inputText)
     {
         $jsonText = $this->jsonValidator->tryParse($inputText);
@@ -106,5 +118,4 @@ class JSONDataService
         $xml = XMLConverter::convertToXML($jsonArray);
         return $xml;
     }
-
 }
