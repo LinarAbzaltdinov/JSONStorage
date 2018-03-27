@@ -66,9 +66,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     if ! which docker; then
       curl -sSL https://get.docker.com/ | sh
-      sudo usermod -aG docker $USER
+      usermod -aG docker $USER
       usermod -aG docker vagrant
-      sudo usermod -aG docker vagrant
+      newgrp docker
     fi
 
     if ! which docker-compose; then
@@ -77,9 +77,10 @@ Vagrant.configure("2") do |config|
     fi
 
     cd /vagrant
-    newgrp docker
     docker run -v $(pwd)/app:/app composer install
     docker-compose up -d
     docker exec phpfpm chmod 777 -R /app/var
+    docker exec -it postgres psql -U postgres -c "CREATE EXTENSION pg_cron;"
+
   SHELL
 end

@@ -22,10 +22,10 @@ services:
     volumes:
       - ./app:/app
       - app.cache:/app/var
-      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini
+      #- ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
-      XDEBUG_CONFIG: "remote_host=192.168.1.136"  #your host ip
-      PHP_IDE_CONFIG: "serverName=docker"
+      #XDEBUG_CONFIG: "remote_host=192.168.1.136"  #your host ip
+      #PHP_IDE_CONFIG: "serverName=docker"
       DATABASE_URL: pgsql://postgres:tiger@db:5432/postgres
     links:
       - db

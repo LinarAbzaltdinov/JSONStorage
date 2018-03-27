@@ -49,24 +49,18 @@ abstract class AbstractJSONDataController extends AbstractController
             }
             $parameters['password'] = $pass;
         }
+        $days = $request->request->get("days");
+        if ($days) {
+            $date = new \DateTime( "+$days days" , new \DateTimeZone("UTC") );
 
-        $isDeleteByDateTime =
-            $request->request->get("deleteByDateTime") === null
-                ? false
-                : true;
-        if ($isDeleteByDateTime) {
-            $minute = $request->request->get("minute");
-            $hour = $request->request->get("hour");
-            $day = $request->request->get("day");
-            $month = $request->request->get("month");
-            $year = $request->request->get("year");
-            if ($minute && $hour && $day && $month) {
-                $cronJobExecutor->runJob( $minute, $hour, $day, $month, $year, "UPDATE jsondata SET deleted=TRUE WHERE id="
+            $minute = $date->format('i');
+            $hour = $date->format('H');
+            $day = $date->format('d');
+            $month = $date->format('m');
+
+            $cronJobExecutor->runJob( $minute, $hour, $day, $month, "UPDATE jsondata SET deleted=TRUE WHERE id="
                                                                         .$jsonDataObject->getId());
-            }
         }
-
-
         return $this->render('showLink.html.twig', $parameters);
     }
 
