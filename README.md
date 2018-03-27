@@ -21,7 +21,7 @@
 
 ## Запуск
 1. `bash run.sh`
-2. Go to [localhost](localhost)
+2. Go to [localhost](http://localhost)
 
 ## Особенности реализации
 Приложение написано на PHP с использование Symfony Framework.
