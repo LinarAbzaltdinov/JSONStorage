@@ -20,7 +20,8 @@
 - [Docker-compose](https://docs.docker.com/compose/)
 
 ## Запуск
-`bash run.sh`
+1. `bash run.sh`
+2. Go to [localhost](localhost)
 
 ## Особенности реализации
 Приложение написано на PHP с использование Symfony Framework.
