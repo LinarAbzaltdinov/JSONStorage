@@ -20,7 +20,7 @@
 - [Docker-compose](https://docs.docker.com/compose/)
 
 ## Запуск
-1. `bash run.sh`
+1. Run in Terminal: `bash run.sh`
 2. Go to [localhost](http://localhost)
 
 ## Особенности реализации
