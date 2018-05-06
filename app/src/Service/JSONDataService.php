@@ -46,7 +46,7 @@ class JSONDataService
         }
     }
 
-    public function get($url)
+\    public function get($url)
     {
         /** @var JSONData $result */
         $result = $this->em->getRepository(JSONData::class)->findOneBy(['url' => $url]);
