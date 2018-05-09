@@ -19,8 +19,11 @@
 - [Docker](https://www.docker.com/)
 - [Docker-compose](https://docs.docker.com/compose/)
 
+При их отсутствии, скрипт `run.sh` автоматически их установит.
+
 ## Запуск
-`bash run.sh`
+1. Run in Terminal: `bash run.sh`
+2. Go to [localhost](http://localhost)
 
 ## Особенности реализации
 Приложение написано на PHP с использование Symfony Framework.
